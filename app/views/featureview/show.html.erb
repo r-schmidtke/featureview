@@ -1,0 +1,148 @@
+<div class="contextual">
+<%= link_to l(:button_edit), edit_issue_path(@issue), :onclick => 'showAndScrollTo("update", "issue_notes"); return false;', :class => 'icon icon-edit', :accesskey => accesskey(:edit) if @issue.editable? %>
+<%= link_to l(:button_log_time), new_issue_time_entry_path(@issue), :class => 'icon icon-time-add' if User.current.allowed_to?(:log_time, @project) %>
+<%= link_to l(:button_copy), project_copy_issue_path(@project, @issue), :class => 'icon icon-copy' if User.current.allowed_to?(:copy_issues, @project) && Issue.allowed_target_projects.any? %>
+</div>
+
+<% content_for :sidebar do %>
+  <%= render :partial => 'issues/sidebar' %>
+  <h3><%= l(:label_version) %></h3>
+
+  <ul>
+
+  <% @versions.each do |version| %>
+      <li><%= link_to(version.name, controller: "featureview", action: "show", id: @issue.id, project_id: @project.id, version: version.id ) %></li>
+  <% end %>
+  <li><%= link_to(l(:label_featureview_backlog), controller: "featureview", action: "show", id: @issue.id, project_id: @project.id, version: @backlog.id) %></li>
+  <li><%= link_to(l(:label_featureview_all_versions), controller: "featureview", action: "show", id: @issue.id, project_id: @project.id) %></li>
+
+  </ul>
+<% end %>
+
+
+<h2><%= l(:label_featureview_context) %> <%= h("#{@issue.tracker} ##{@issue.id}") %></h2>
+
+<div class="<%= @issue.css_classes %> details">
+<%= avatar(@issue.author, :size => "50") %>
+
+<div class="subject">
+<%= content_tag('h3', @issue.subject) %>
+</div>
+    <p class="author">
+    <%= authoring @issue.created_on, @issue.author %>.
+    <% if @issue.created_on != @issue.updated_on %>
+    <%= l(:label_updated_time, time_tag(@issue.updated_on)).html_safe %>.
+    <% end %>
+    </p>
+
+
+    <div class="attributes">
+    <%= issue_fields_rows do |rows|
+      rows.left l(:field_status), @issue.status.name, :class => 'status'
+      rows.left l(:field_priority), @issue.priority.name, :class => 'priority'
+
+      unless @issue.disabled_core_fields.include?('category_id') || (@issue.category.nil? && @issue.project.issue_categories.none?)
+        rows.left l(:field_category), (@issue.category ? @issue.category.name : "-"), :class => 'category'
+      end
+
+      versionlinks = []
+
+      @versions.each do |version|
+        versionlinks << link_to_version(version)
+      end
+
+      rows.left l(:field_fixed_versions), versionlinks.join(", ").html_safe, :class => 'fixed-version'
+
+      unless @issue.disabled_core_fields.include?('start_date')
+        rows.right l(:field_start_date), format_date(@issue.start_date), :class => 'start-date'
+      end
+      unless @issue.disabled_core_fields.include?('due_date')
+        rows.right l(:field_due_date), format_date(@issue.due_date), :class => 'due-date'
+      end
+      unless @issue.disabled_core_fields.include?('done_ratio')
+        rows.right l(:field_done_ratio), progress_bar(@issue.done_ratio, :legend => "#{@issue.done_ratio}%"), :class => 'progress'
+      end
+
+      if User.current.allowed_to_view_all_time_entries?(@project)
+        if @issue.total_spent_hours > 0
+          rows.right l(:label_spent_time), issue_spent_hours_details(@issue), :class => 'spent-time'
+        end
+      end
+    end %>
+    <%= render_custom_fields_rows(@issue) %>
+    <%= call_hook(:view_issues_show_details_bottom, :issue => @issue) %>
+    </div>
+
+
+    <% if @issue.description? || @issue.attachments.any? -%>
+    <hr />
+    <% if @issue.description? %>
+    <div class="description">
+      <div class="contextual">
+      <%= link_to l(:button_quote), quoted_issue_path(@issue), :remote => true, :method => 'post', :class => 'icon icon-comment' if authorize_for('issues', 'edit') %>
+      </div>
+
+      <p><strong><%=l(:field_description)%></strong></p>
+      <div class="wiki">
+      <%= textilizable @issue, :description, :attachments => @issue.attachments %>
+      </div>
+    </div>
+    <% end %>
+    <% end -%>
+
+    <%= call_hook(:view_issues_show_description_bottom, :issue => @issue) %>
+
+
+    <% if !@issue.leaf? || User.current.allowed_to?(:manage_subtasks, @project) %>
+    <hr />
+    <div id="issue_tree">
+    <div class="contextual">
+      <%= link_to_new_subtask(@issue) if User.current.allowed_to?(:manage_subtasks, @project) %>
+    </div>
+    <p><strong><%=l(:label_featureview_specification)%></strong></p>
+    <%= render_featureview_specifications_lists(@issue) unless @issue.leaf? %>
+    <div class="contextual">
+      <%= link_to_new_subtask(@issue) if User.current.allowed_to?(:manage_subtasks, @project) %>
+    </div>
+    <p><strong><%=l(:label_featureview_todo)%></strong></p>
+    <%= render_featureview_todos_lists(@issue) unless @issue.leaf? %>
+    </div>
+    <% end %>
+
+    <p><strong><%=l(:label_featureview_connected_issues)%></strong></p>
+
+    <% if @relations.present? %>
+    <form>
+    <table class="list issues">
+    <% @relations.each do |relation| %>
+      <% other_issue = relation.other_issue(@issue) -%>
+      <tr class="issue hascontextmenu" id="relation-<%= relation.id %>">
+      <td class="subject" style="width: 50%">
+        <%= relation.to_s(@issue) {|other| link_to_issue(other, :project => Setting.cross_project_issue_relations?)}.html_safe %>
+      </td>
+      <td><%= h(other_issue.category) %> </td>
+      <td class="status"><%= other_issue.status.name %></td>
+      <td><%= link_to_version(Version.find(other_issue.fixed_version_id)) unless other_issue.fixed_version_id.nil?%> </td>
+      <td><%= link_to_user(other_issue.assigned_to) %></td>
+      <td class="start_date"><%= format_date(other_issue.start_date) %></td>
+      <td class="buttons"><%= link_to image_tag('link_break.png'),
+                                      relation_path(relation),
+                                      :remote => true,
+                                      :method => :delete,
+                                      :data => {:confirm => l(:text_are_you_sure)},
+                                      :title => l(:label_relation_delete) if User.current.allowed_to?(:manage_issue_relations, @project) %></td>
+      </tr>
+    <% end %>
+    </table>
+    </form>
+    <% end %>
+
+
+
+
+
+
+
+
+
+</div>

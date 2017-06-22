@@ -1,0 +1,20 @@
+# English strings go here for Rails i18n
+en:
+  # my_label: "My label"
+  field_fixed_versions: "Target Versions"
+  label_featureview_todo: "ToDo"
+  label_featureview_specification: "Specification"
+  label_featureview_all_versions: "All Versions"
+  label_featureview_connected_issues: "Bugs & Features"
+  label_featureview_setextra: "Testbacke"
+  label_featureview_backlog: "BackLog"
+de:
+  # my_label: "My label"
+  field_fixed_versions: "Zielversionen"
+  label_featureview_todo: "Entwicklung"
+  label_featureview_specification: "Spezifikation"
+  label_featureview_all_versions: "Alle Versionen"
+  label_featureview_connected_issues: "Fehler & Features"
+  label_featureview_context: "Engineering-Kontext: "
+  label_featureview_setextra: "Als aktuelle Version markieren"
+  label_featureview_backlog: "BackLog"
