@@ -13,6 +13,7 @@ class FeatureviewController < ApplicationController
   def show
     @issue = Issue.find(params[:id])
     @relations = @issue.relations
+    @changesets = [false]
   end
 
 
