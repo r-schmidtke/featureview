@@ -29,7 +29,7 @@ class FeatureviewController < ApplicationController
       end
     end
 
-    allversions = Version.where(project_id: @project.id).reject{ |version| version.name.downcase.include? "backlog" }
+    allversions = Version.where(project_id: @project.id).reject{ |version| version.name.downcase.include? "backlog" }.sort_by{|v| Gem::Version.new(v)}
 
     customfield = CustomField.all.where(name: Setting.plugin_featureview['version_field']).last
 

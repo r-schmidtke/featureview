@@ -90,9 +90,6 @@
     <% end %>
     <% end -%>
 
-    <%= call_hook(:view_issues_show_description_bottom, :issue => @issue) %>
-
-
     <% if !@issue.leaf? || User.current.allowed_to?(:manage_subtasks, @project) %>
     <hr />
     <div id="issue_tree">
