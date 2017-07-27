@@ -4,21 +4,12 @@ module FeatureviewHelper
 
   def done_ratio_by_version(id, version)
     issue = Issue.find(id)
-
+    done_ratio = 100
     unless Issue.use_status_for_done_ratio? && issue.status && issue.status.default_done_ratio
-      child_count = issue.children.where("fixed_version_id = '#{version}'").count
-      if child_count > 0
-        average = issue.children.where("estimated_hours > 0").where("fixed_version_id = '#{version}'").average(:estimated_hours).to_f
-        if average == 0
-          average = 1
+      issue.children.where("fixed_version_id = '#{version}'").each do |child|
+        if child.done_ratio <= done_ratio
+          done_ratio = child.done_ratio
         end
-        done = issue.children.where("fixed_version_id = '#{version}'").joins(:status).
-          sum("COALESCE(CASE WHEN estimated_hours > 0 THEN estimated_hours ELSE NULL END, #{average}) " +
-              "* (CASE WHEN is_closed = 'true' THEN 100 ELSE COALESCE(done_ratio, 0) END)").to_f
-        progress = done / (average * child_count)
-        done_ratio = progress.round
-      else
-        done_ratio = 100
       end
     end
   end
