@@ -6,8 +6,14 @@ class FeatureviewController < ApplicationController
   def index
     usecasetrackerid = Tracker.where(name: Setting.plugin_featureview['tracker_usecase']).first.id
     servicetrackerid = Tracker.where(name: Setting.plugin_featureview['tracker_systemservice']).first.id
-    @usecases = Issue.where(tracker_id: usecasetrackerid, project_id: @project.id)
-    @services = Issue.where(tracker_id: servicetrackerid, project_id: @project.id)
+    allUsecases = Issue.where(tracker_id: usecasetrackerid)
+    allServices = Issue.where(tracker_id: servicetrackerid)
+    @usecases = allUsecases.where(project_id: @project.id)
+    @services = allServices.where(project_id: @project.id)
+    Project.find(@project.id).children.each do |child|
+      @usecases += allUsecases.where(project_id: child.id)
+      @services += allServices.where(project_id: child.id)
+    end
   end
 
   def show
