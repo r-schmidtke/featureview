@@ -12,6 +12,7 @@ module FeatureviewHelper
         end
       end
     end
+    done_ratio
   end
 
 
