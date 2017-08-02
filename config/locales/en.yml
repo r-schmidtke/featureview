@@ -1,8 +1,8 @@
 en:
   field_fixed_versions: "Target Versions"
+  label_featureview: "Engineering"
   label_featureview_todo: "ToDo"
   label_featureview_specification: "Specification"
   label_featureview_all_versions: "All Versions"
   label_featureview_connected_issues: "Bugs & Features"
-  label_featureview_setextra: "Testbacke"
   label_featureview_backlog: "BackLog"

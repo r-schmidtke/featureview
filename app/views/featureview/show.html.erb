@@ -5,7 +5,7 @@
 </div>
 
 <% content_for :sidebar do %>
-  <%= render :partial => 'issues/sidebar' %>
+
   <h3><%= l(:label_version) %></h3>
 
   <ul>
@@ -20,13 +20,13 @@
 <% end %>
 
 
-<h2><%= l(:label_featureview_context) %> <%= h("#{@issue.tracker} ##{@issue.id}") %></h2>
+<h2><%= l(:label_featureview_context) %> <%= h("#{@issue.subject}") %></h2>
 
 <div class="<%= @issue.css_classes %> details">
 <%= avatar(@issue.author, :size => "50") %>
 
 <div class="subject">
-<%= content_tag('h3', @issue.subject) %>
+<%= link_to_issue(@issue) %>
 </div>
     <p class="author">
     <%= authoring @issue.created_on, @issue.author %>.

@@ -6,6 +6,6 @@ Redmine::Plugin.register :featureview do
   version '0.0.1'
 
     permission :featureview, { :featureview => [:index, :show] }, :public => true
-    menu :project_menu, :featureview, { :controller => 'featureview', :action => 'index' }, :caption => 'Leistungsmerkmale', :after => :activity, :param => :project_id
+    menu :project_menu, :featureview, { :controller => 'featureview', :action => 'index' }, :caption => :label_featureview, :after => :activity, :param => :project_id
     settings :default => {}, :partial => 'settings/featureview_settings'
 end
