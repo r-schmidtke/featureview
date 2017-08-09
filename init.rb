@@ -5,9 +5,6 @@ Redmine::Plugin.register :featureview do
   description 'specialized views for product features'
   version '0.0.1'
 
-
-
-
   project_module :featureview do
     permission :index_featureview, :featureview => :index
     permission :show_featureview, :featureview => :show
