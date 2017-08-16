@@ -15,8 +15,7 @@
     <td class="status"><%= IssueStatus.find(issue.status_id).name %></td>
     <% @versions.each do |version| %>
     <td>
-      <%= progress_bar(done_ratio_by_version(issue.id, version.id),
-                 :legend => ('%0.0f%' % done_ratio_by_version(issue.id, version.id))) %>
+      <%= progress_bar_special(issue.id, version.id) %>
     </td>
     <% end %>
     </td>
@@ -42,8 +41,33 @@
     <td class="status"><%= IssueStatus.find(issue.status_id).name %></td>
     <% @versions.each do |version| %>
     <td>
-      <%= progress_bar(done_ratio_by_version(issue.id, version.id),
-                 :legend => ('%0.0f%' % done_ratio_by_version(issue.id, version.id))) %>
+      <%= progress_bar_special(issue.id, version.id) %>
+    </td>
+    <% end %>
+    </td>
+  </tr>
+  <% end %>
+  </tbody>
+</table>
+
+<h3>Fachlogik</h3>
+
+<table class="list issues">
+  <thead><tr>
+  <th><%=l(:field_subject)%></th>
+  <th><%=l(:field_status)%></th>
+<% @versions.each do |version| %>
+    <th><%=version.extra%>: <%=link_to_version(version)%></th>
+<% end %>
+  </tr></thead>
+  <tbody>
+<% @logicals.each do |issue| %>
+  <tr id="issue-<%= h(issue.id) %>" class="hascontextmenu <%= cycle('odd', 'even') %> <%= issue.css_classes %>">
+    <td class="subject"><%= link_to(issue.subject.truncate(60), controller: "featureview", action: "show", id: issue.id, :project_id => @project.id) %></td>
+    <td class="status"><%= IssueStatus.find(issue.status_id).name %></td>
+    <% @versions.each do |version| %>
+    <td>
+      <%= progress_bar_special(issue.id, version.id) %>
     </td>
     <% end %>
     </td>

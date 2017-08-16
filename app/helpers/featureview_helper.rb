@@ -2,6 +2,15 @@ module FeatureviewHelper
   include IssuesHelper
 
 
+  def progress_bar_special(id, version)
+    issue = Issue.find(id)
+    if issue.children.where("fixed_version_id = '#{version}'").count >= 1
+      return progress_bar(done_ratio_by_version(id, version), :legend => ('%0.0f%' % done_ratio_by_version(id, version)))
+    end
+    return ""
+  end
+
+
   def done_ratio_by_version(id, version)
     issue = Issue.find(id)
     done_ratio = 100
