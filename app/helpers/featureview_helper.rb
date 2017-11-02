@@ -37,13 +37,7 @@ module FeatureviewHelper
 
        issues = issue.descendants.where(tracker_id: tracker)
        if params.has_key?(:version)
-         versionids = []
-         @project.shared_versions.each do |currentversion|
-           if currentversion.name == Version.find(params[:version]).name
-            versionids << currentversion.id
-           end
-         end
-         issues = issue.descendants.where(tracker_id: tracker, fixed_version_id: versionids)
+         issues = issue.descendants.where(tracker_id: tracker, fixed_version_id: params[:version])
        end
 
       issue_list(issues.visible.preload(:status, :priority, :tracker).where.not(fixed_version_id: nil).sort_by {|everyissue| everyissue.category_id}) do |child, level|

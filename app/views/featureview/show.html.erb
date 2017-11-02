@@ -11,7 +11,9 @@
   <ul>
 
   <% @versions.each do |version| %>
+    <% if done_ratio_by_version(@issue.id, version.id) != 100 -%>
       <li><%= link_to(version.name, controller: "featureview", action: "show", id: @issue.id, project_id: @project.id, version: version.id ) %></li>
+    <% end -%>
   <% end %>
   <li><%= link_to(l(:label_featureview_backlog), controller: "featureview", action: "show", id: @issue.id, project_id: @project.id, version: @backlog.id) %></li>
   <li><%= link_to(l(:label_featureview_all_versions), controller: "featureview", action: "show", id: @issue.id, project_id: @project.id) %></li>
@@ -48,7 +50,9 @@
       versionlinks = []
 
       @versions.each do |version|
-        versionlinks << link_to_version(version)
+        if done_ratio_by_version(@issue.id, version.id) != 100
+          versionlinks << link_to_version(version)
+        end
       end
 
       rows.left l(:field_fixed_versions), versionlinks.join(", ").html_safe, :class => 'fixed-version'

@@ -38,13 +38,14 @@ class FeatureviewController < ApplicationController
 
   def select_versions
 
+    # find backlog version for current project
     Version.where(project_id: @project.id).each do |version|
       if version.name.downcase.include? "backlog"
          @backlog = version
       end
     end
 
-
+    # collect all versions of this project and child projects
     allversions = Version.where(project_id: @project.id)
     @project.children.each do |child|
       allversions += Version.where(project_id: child.id)
