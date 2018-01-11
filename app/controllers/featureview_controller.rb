@@ -4,6 +4,7 @@ class FeatureviewController < ApplicationController
   before_filter :define_tracker, :find_project, :select_versions
 
   def index
+
     usecasetrackerid = Tracker.where(name: Setting.plugin_featureview['tracker_usecase']).first.id
     servicetrackerid = Tracker.where(name: Setting.plugin_featureview['tracker_systemservice']).first.id
     logicaltrackerid = Tracker.where(name: Setting.plugin_featureview['tracker_fachlogik']).first.id
@@ -14,6 +15,7 @@ class FeatureviewController < ApplicationController
     @usecases = allUsecases.where(project_id: @project.id)
     @services = allServices.where(project_id: @project.id)
     @logicals = allLogicals.where(project_id: @project.id)
+
     Project.find(@project.id).children.each do |child|
       @usecases += allUsecases.where(project_id: child.id)
       @services += allServices.where(project_id: child.id)
@@ -29,7 +31,6 @@ class FeatureviewController < ApplicationController
 
   def define_tracker
     @relevant_tracker = [];
-
   end
 
   def find_project
@@ -37,7 +38,6 @@ class FeatureviewController < ApplicationController
   end
 
   def select_versions
-
     # find backlog version for current project
     Version.where(project_id: @project.id).each do |version|
       if version.name.downcase.include? "backlog"

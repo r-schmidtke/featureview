@@ -40,7 +40,7 @@ module FeatureviewHelper
          issues = issue.descendants.where(tracker_id: tracker, fixed_version_id: params[:version])
        end
 
-      issue_list(issues.visible.preload(:status, :priority, :tracker).where.not(fixed_version_id: nil).sort_by {|everyissue| everyissue.category_id}) do |child, level|
+      issue_list(issues.visible.preload(:status, :priority, :tracker).where.not(fixed_version_id: nil).sort_by {|everyissue| everyissue.category_id}.reverse!) do |child, level|
         css = "issue issue-#{child.id} hascontextmenu"
         css << " idnt idnt-#{level}" if level > 0
         s << content_tag('tr',
