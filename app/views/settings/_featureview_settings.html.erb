@@ -25,6 +25,14 @@
       </td>
     </tr>
     <tr>
+      <th>Tracker Name für Fachlogik-Tickets</th>
+      <td>
+        <input type="text" id="settings_tracker_fachlogik"
+                           value="<%= settings['tracker_fachlogik'] %>"
+                           name="settings[tracker_fachlogik]" >
+      </td>
+    </tr>
+    <tr>
       <th>Tracker Name für Entwicklungs-Tickets</th>
       <td>
         <input type="text" id="settings_tracker_todo"
@@ -38,6 +46,14 @@
         <input type="text" id="settings_version_field"
                            value="<%= settings['version_field'] %>"
                            name="settings[version_field]" >
+      </td>
+    </tr>
+    <tr>
+      <th>Trackernamen, die für Engineering Kontext relevant sind. (mit Leerzeichen getrennt)</th>
+      <td>
+        <input type="text" id="settings_tracker_names"
+                           value="<%= settings['tracker_names'] %>"
+                           name="settings[tracker_names]" >
       </td>
     </tr>
   </tbody>

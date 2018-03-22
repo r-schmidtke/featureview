@@ -5,13 +5,15 @@
 </div>
 
 <% content_for :sidebar do %>
-  <%= render :partial => 'issues/sidebar' %>
+
   <h3><%= l(:label_version) %></h3>
 
   <ul>
 
   <% @versions.each do |version| %>
+    <% if done_ratio_by_version(@issue.id, version.id) != 100 -%>
       <li><%= link_to(version.name, controller: "featureview", action: "show", id: @issue.id, project_id: @project.id, version: version.id ) %></li>
+    <% end -%>
   <% end %>
   <li><%= link_to(l(:label_featureview_backlog), controller: "featureview", action: "show", id: @issue.id, project_id: @project.id, version: @backlog.id) %></li>
   <li><%= link_to(l(:label_featureview_all_versions), controller: "featureview", action: "show", id: @issue.id, project_id: @project.id) %></li>
@@ -20,13 +22,13 @@
 <% end %>
 
 
-<h2><%= l(:label_featureview_context) %> <%= h("#{@issue.tracker} ##{@issue.id}") %></h2>
+<h2><%= l(:label_featureview_context) %> <%= h("#{@issue.subject}") %></h2>
 
 <div class="<%= @issue.css_classes %> details">
 <%= avatar(@issue.author, :size => "50") %>
 
 <div class="subject">
-<%= content_tag('h3', @issue.subject) %>
+<%= link_to_issue(@issue) %>
 </div>
     <p class="author">
     <%= authoring @issue.created_on, @issue.author %>.
@@ -48,7 +50,9 @@
       versionlinks = []
 
       @versions.each do |version|
-        versionlinks << link_to_version(version)
+        if done_ratio_by_version(@issue.id, version.id) != 100
+          versionlinks << link_to_version(version)
+        end
       end
 
       rows.left l(:field_fixed_versions), versionlinks.join(", ").html_safe, :class => 'fixed-version'
@@ -88,7 +92,6 @@
     </div>
     <% end %>
     <% end -%>
-
 
     <% if !@issue.leaf? || User.current.allowed_to?(:manage_subtasks, @project) %>
     <hr />

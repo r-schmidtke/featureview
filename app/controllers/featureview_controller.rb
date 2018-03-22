@@ -1,16 +1,26 @@
 class FeatureviewController < ApplicationController
   unloadable
-
-  helper FeatureviewHelper
-  helper QueriesHelper
-
-  before_filter :find_project, :select_versions
+  include FeatureviewHelper
+  before_filter :define_tracker, :find_project, :select_versions
 
   def index
+
     usecasetrackerid = Tracker.where(name: Setting.plugin_featureview['tracker_usecase']).first.id
     servicetrackerid = Tracker.where(name: Setting.plugin_featureview['tracker_systemservice']).first.id
-    @usecases = Issue.where(tracker_id: usecasetrackerid, project_id: @project.id)
-    @services = Issue.where(tracker_id: servicetrackerid, project_id: @project.id)
+    logicaltrackerid = Tracker.where(name: Setting.plugin_featureview['tracker_fachlogik']).first.id
+
+    allUsecases = Issue.where(tracker_id: usecasetrackerid)
+    allServices = Issue.where(tracker_id: servicetrackerid)
+    allLogicals = Issue.where(tracker_id: logicaltrackerid)
+    @usecases = allUsecases.where(project_id: @project.id)
+    @services = allServices.where(project_id: @project.id)
+    @logicals = allLogicals.where(project_id: @project.id)
+
+    Project.find(@project.id).children.each do |child|
+      @usecases += allUsecases.where(project_id: child.id)
+      @services += allServices.where(project_id: child.id)
+      @logicals += allLogicals.where(project_id: child.id)
+    end
   end
 
   def show
@@ -19,20 +29,30 @@ class FeatureviewController < ApplicationController
     @changesets = [false]
   end
 
+  def define_tracker
+    @relevant_tracker = [];
+  end
 
   def find_project
     @project = Project.find(params[:project_id])
   end
 
   def select_versions
-
+    # find backlog version for current project
     Version.where(project_id: @project.id).each do |version|
       if version.name.downcase.include? "backlog"
          @backlog = version
       end
     end
 
-    allversions = Version.where(project_id: @project.id).reject{ |version| version.name.downcase.include? "backlog" }
+    # collect all versions of this project and child projects
+    allversions = Version.where(project_id: @project.id)
+    @project.children.each do |child|
+      allversions += Version.where(project_id: child.id)
+    end
+
+
+    allversions = allversions.reject{ |version| version.name.downcase.include? "backlog" }.sort_by{|v| Gem::Version.new(v)}
 
     customfield = CustomField.all.where(name: Setting.plugin_featureview['version_field']).last
 
@@ -70,11 +90,24 @@ class FeatureviewController < ApplicationController
           customvalue.update_attribute(:value, "0")
       end
     end
+
+
     unsorted = []
+    @versions = []
+
+    #first pass, to collect all versions that are not completed
     allversions.each do |version|
-      unsorted << version if version.completed_percent != 100 && Issue.where(fixed_version_id: version.id).first
+      unsorted << version if version.completed_percent != 100
     end
-    @versions = unsorted
+
+
+    #second pass to filter out the versions that have no relevant open tickets
+    trackerids = Tracker.where(name: Setting.plugin_featureview['tracker_names'].split(" ")).ids
+
+    unsorted.each do |version|
+      @versions << version if Issue.where(fixed_version_id: version.id, tracker_id: trackerids).where.not(done_ratio: 100).any?
+    end
+
   end
 
 
