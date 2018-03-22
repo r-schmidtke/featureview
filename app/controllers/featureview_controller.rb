@@ -1,6 +1,9 @@
 class FeatureviewController < ApplicationController
   unloadable
-  include FeatureviewHelper
+
+  helper FeatureviewHelper
+  helper QueriesHelper
+
   before_filter :find_project, :select_versions
 
   def index
