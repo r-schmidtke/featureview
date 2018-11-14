@@ -74,7 +74,6 @@
       end
     end %>
     <%= render_half_width_custom_fields_rows(@issue) %>
-    <%= call_hook(:view_issues_show_details_bottom, :issue => @issue) %>
     </div>
 
 
@@ -136,14 +135,5 @@
     <% end %>
     </table>
     </form>
-    <% end %>
-
-
-
-
-
-
-
-
-
+  <% end %>
 </div>
