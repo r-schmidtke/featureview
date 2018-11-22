@@ -86,11 +86,11 @@ class FeatureviewController < ApplicationController
 
     #update version iteration custom fields
     CustomValue.where(custom_field_id: customfield.id).each do |customvalue|
-      if Version.find(customvalue.customized_id).extra != "N"
+      v = Version.find(customvalue.customized_id)
+      if v && v.extra != "N" && v.project_id == @project.id
           customvalue.update_attribute(:value, "0")
       end
     end
-
 
     unsorted = []
     @versions = []
