@@ -24,6 +24,22 @@ module FeatureviewHelper
     done_ratio
   end
 
+  def link_to_new_specification(issue)
+    attrs = {
+      :parent_issue_id => issue
+    }
+    attrs[:tracker_id] = Tracker.where(name: Setting.plugin_featureview['tracker_specification']).first.id
+    link_to(l(:button_add), new_project_issue_path(issue.project, :issue => attrs))
+  end
+
+  def link_to_new_todo(issue)
+    attrs = {
+      :parent_issue_id => issue
+    }
+    attrs[:tracker_id] = Tracker.where(name: Setting.plugin_featureview['tracker_todo']).first.id
+    link_to(l(:button_add), new_project_issue_path(issue.project, :issue => attrs))
+  end
+
 
     def render_featureview_lists(issue, tracker)
       s = '<form><table class="list issues">'
